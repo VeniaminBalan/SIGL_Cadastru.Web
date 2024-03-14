@@ -12,5 +12,4 @@ public struct Document
     public string Number { get; set; }
     public DateOnly Date { get; set; }
     public string Mentions { get; set; }
-    public int Copies { get; set; }
 }

@@ -2,7 +2,7 @@
 
 public enum StateType
 {
-    Pending,
+    InProgress,
     AtReception,
     Issued,
     Rejected,

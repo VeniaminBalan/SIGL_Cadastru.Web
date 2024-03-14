@@ -1,18 +1,20 @@
 ﻿using Domain.Contracts;
+using Domain.Models.Entities.Clients;
 using Domain.Models.ValueObjects;
 using Domain.Shared;
 using FluentDateTime;
 
 namespace Domain.Models.Entities;
 
-public sealed class Request : Entity
+public sealed class Request
 {
-    public Person Client { get; private set; }
-    public Person Performer { get; private set; } // the user
-    public Person Responsible { get; private set; } // the user
+    public string Id { get; init; }
+    public Client Client { get; private set; }
+    public User Performer { get; private set; }
+    public User Responsible { get; private set; }
 
-    public DateOnly AvailableFromUtc { get; private set; }
-    public DateOnly AvailableUntilUtc { get; private set; }
+    public DateTime AvailableFromUtc { get; private set; }
+    public DateTime AvailableUntilUtc { get; private set; }
     public string CadastralNumber { get; private set; }
     public string Comment { get; private set; } = string.Empty;
     public RequestNumber Number { get; private set; } // generate from database, format yy/iiii
@@ -22,13 +24,13 @@ public sealed class Request : Entity
     public List<CadastralWork> CadastralWorks { get; private set; } = [];
     public decimal Addition { get; private set; }
 
-    private Request(string id) : base(id) { }
+    private Request(string id) { }
 
     public static async Task<Result<Request>> Create(
         IRequestNumberGenerator numberGenerator,
-        Person client,
-        Person performer,
-        Person responsible,
+        Client client,
+        User performer,
+        User responsible,
         string cadastralNumber,
         List<Document> documents,
         List<CadastralWork> cadastralWorks,
@@ -37,13 +39,7 @@ public sealed class Request : Entity
         uint deadline,
         int addition = default)
     {
-        // check if person has rights for a performer
-        if (performer is not { Role: RoleType.Performer | RoleType.Responsible })
-            return Result.Failure<Request>(RequestErrors.PerformerRightViolation(performer.Id));
-
-        // check if person has rights for a responsible
-        if (responsible is not { Role: RoleType.Responsible })
-            return Result.Failure<Request>(RequestErrors.ResponsibleRightViolation(responsible.Id));
+        // check the users role
 
         if (availableFrom > DateTime.UtcNow)
             return Result.Failure<Request>(RequestErrors.InvalidDateAvailableFrom());
@@ -65,11 +61,11 @@ public sealed class Request : Entity
         request.Performer = performer;
         request.Responsible = responsible;
         request.Number = await numberGenerator.GetNumberAsync();
-        request.States.Add(new RequestState(Guid.NewGuid().ToString(), request.Id, StateType.Pending));
+        request.States.Add(new RequestState(Guid.NewGuid().ToString(), request.Id, StateType.InProgress));
         request.Documents = documents;
         request.Addition = addition;
-        request.AvailableFromUtc = GetAvailableUntil(availableFrom, deadline);
-        request.AvailableUntilUtc = GetAvailableFrom(availableFrom);
+        request.AvailableFromUtc = availableFrom.AddBusinessDays((int)deadline);
+        request.AvailableUntilUtc = availableFrom;
         request.Comment = comment;
 
         return request;
@@ -98,9 +94,4 @@ public sealed class Request : Entity
         States.Add(requestState);
         return Result.Succes();
     }
-    private static DateOnly GetAvailableUntil(DateTime availableFrom, uint deadline) => 
-        DateOnly.FromDateTime(availableFrom.AddBusinessDays((int)deadline));
-    private static DateOnly GetAvailableFrom(DateTime availableFrom) => DateOnly.FromDateTime(availableFrom);
-
-
 }

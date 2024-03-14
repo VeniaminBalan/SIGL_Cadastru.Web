@@ -1,4 +1,5 @@
-﻿namespace Domain.Shared;
+﻿
+namespace Domain.Shared;
 
 public record Error(ErrorType Type, string Description = null)
 {
@@ -21,6 +22,7 @@ public class CommonErrors
     public static Error PriceError() => new Error(ErrorType.BadRequest, "Price can't be negative number");
     public static Error EmptyField(string field) => new Error(ErrorType.BadRequest, $"{field} can't be empty");
     public static Error NotFound(string id) => new Error(ErrorType.NotFound, $"entity with id= {id} was not found");
+    public static Error InvalidEmail(string v) => new Error(ErrorType.BadRequest, $"{v} is not valid email");
 }
 public class CadastralWorkErrors : CommonErrors
 {
