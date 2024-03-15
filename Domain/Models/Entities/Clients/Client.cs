@@ -37,17 +37,13 @@ public sealed class Client
             return Result.Failure<Client>(CommonErrors.EmptyField("Last name"));
 
         if(string.IsNullOrWhiteSpace(idnp))
-            return Result.Failure<Client>(CommonErrors.EmptyField("IDNP"));
+            return Result.Failure<Client>(CommonErrors.EmptyField("IdentificationNumber"));
 
         if(string.IsNullOrWhiteSpace(domicile))
             return Result.Failure<Client>(CommonErrors.EmptyField("Domicile"));
 
         if(!await idnpUniqueServie.IsIdnpUniqueAsunc(idnp))
-            return Result.Failure<Client>(CommonErrors.NotUnique("IDNP"));
-
-        //check idnp
-        //check email
-        //validate fields
+            return Result.Failure<Client>(CommonErrors.NotUnique(idnp));
 
         return new Client
         {

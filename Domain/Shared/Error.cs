@@ -1,4 +1,5 @@
 ﻿
+
 namespace Domain.Shared;
 
 public record Error(ErrorType Type, string Description = null)
@@ -23,6 +24,7 @@ public class CommonErrors
     public static Error EmptyField(string field) => new Error(ErrorType.BadRequest, $"{field} can't be empty");
     public static Error NotFound(string id) => new Error(ErrorType.NotFound, $"entity with id= {id} was not found");
     public static Error InvalidEmail(string v) => new Error(ErrorType.BadRequest, $"{v} is not valid email");
+    public static Error NotUnique(string idnp) => new Error(ErrorType.Dublicate, $"IdentificationNumber: {idnp} is not unique");
 }
 public class CadastralWorkErrors : CommonErrors
 {

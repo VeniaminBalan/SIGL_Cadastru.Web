@@ -44,14 +44,13 @@ public sealed class TreeNode
             Deadline = null,
         };
     }
-
-    public static TreeNode CreateWithDots(string id, string parentId, string description, int price)
+    public static TreeNode CreateWithDots(string id, string parentId, int price)
     {
         return new TreeNode
         {
             Id = id,
             Type = TreeNodeType.Dots,
-            Description = description,
+            Description = null,
             ParentId = parentId,
             Price = price,
             Deadline = null,
@@ -68,7 +67,6 @@ public sealed class TreeNode
             Price = price,
             Deadline = deadline
         };
-
     }
 
 }
